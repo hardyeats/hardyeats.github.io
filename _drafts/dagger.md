@@ -87,7 +87,7 @@ You need to define what objects should be included as part of the dependency cha
 
 Because we wish to setup caching, we need an Application context. Our first Dagger module, `AppModule.java`, will be used to provide this reference. We will define a method annotated with `@Provides` that informs Dagger that this method is the constructor for the `Application` return type (i.e., it is the method in charge of providing the instance of the Application class):
 
-```
+```java
 @Module
 public class AppModule {
 
