@@ -8,17 +8,19 @@ title:  "Dagger 2를 이용한 의존성 주입"
 
 ## 개요
 
-Many Android apps rely on instantiating objects that often require other dependencies. For instance, a Twitter API client may be built using a networking library such as [Retrofit](https://github.com/codepath/android_guides/wiki/Consuming-APIs-with-Retrofit). 이 라이브러리를 사용하려면, [Gson](https://github.com/codepath/android_guides/wiki/Leveraging-the-Gson-Library) 같은 파싱 라이브러리를 추가해야 할지도 모른다. In addition, classes that implement authentication or caching may require accessing [shared preferences](https://github.com/codepath/android_guides/wiki/Storing-and-Accessing-SharedPreferences) or other common storage, requiring instantiating them first and creating an inherent dependency chain.
+많은 안드로이드 앱들은 다른 의존성을 필요로 하는 객체를 인스턴스화 한다. 예를 들어, 트위터 API 클라이언트를 만들 때 [Retrofit](https://github.com/codepath/android_guides/wiki/Consuming-APIs-with-Retrofit) 같은 네트워킹 라이브러리를 활용할 수 있다. 이 라이브러리를 사용하려면, [Gson](https://github.com/codepath/android_guides/wiki/Leveraging-the-Gson-Library) 같은 파싱 라이브러리를 추가해야 할지도 모른다. In addition, classes that implement authentication or caching may require accessing [shared preferences](https://github.com/codepath/android_guides/wiki/Storing-and-Accessing-SharedPreferences) or other common storage, requiring instantiating them first and creating an inherent dependency chain.
 
 의존성 주입(Dependency Injection)에 익숙하지 않다면, [이 영상](https://www.youtube.com/watch?v=IKD2-MAkXyQ)을 보고 오자.
 
 Dagger 2는 이러한 의존성들을 분석해 서로를 연결해주는 코드를 생성한다. While there are other Java dependency injection frameworks, many of them suffered limitations in relying on XML, required validating dependency issues at run-time, or incurred performance penalties during startup. [Dagger 2](http://google.github.io/dagger/) relies purely on using Java [annotation processors](https://www.youtube.com/watch?v=dOcs-NKK-RA) and compile-time checks to analyze and verify dependencies. It is considered to be one of the most efficient dependency injection frameworks built to date.
 
+이외에도 여러가지 의존성 주입 프레임워크들이 있겠지만, 많은 프레임워크들이 XML에 의존하기 때문에, 런타임에 의존성의 유효성을 확인해야 하거나 
+
 ### 장점
 
 Here is a list of other advantages for using Dagger 2:
 
-- **Simplifies access to shared instances**. Just as the [ButterKnife](https://github.com/codepath/android_guides/wiki/Reducing-View-Boilerplate-with-Butterknife) library makes it easier to define references to Views, event handlers, and resources, Dagger 2 provides a simple way to obtain references to shared instances. For instance, once we declare in Dagger our singleton instances such as `MyTwitterApiClient` or `SharedPreferences`, we can declare fields with a simple `@Inject` annotation:
+- **공유 인스턴스에 대한 접근이 간편해진다**. [ButterKnife](https://github.com/codepath/android_guides/wiki/Reducing-View-Boilerplate-with-Butterknife)가 View 객체, 이벤트 핸들러, 리소스에 대한 참조를 정의하는 걸 손쉽게 만들어주듯이, Dagger 2는 공유 인스턴스에 대한 참조를 획득하는 걸 간편하게 만들어준다. For instance, once we declare in Dagger our singleton instances such as `MyTwitterApiClient` or `SharedPreferences`, we can declare fields with a simple `@Inject` annotation:
 
 ```java
 public class MainActivity extends Activity {
@@ -31,9 +33,9 @@ public class MainActivity extends Activity {
    } 
 ```
 
-- **Easy configuration of complex dependencies**. There is an implicit order in which your objects are often created. Dagger 2 walks through the dependency graph and [generates code](https://github.com/codepath/android_guides/wiki/Dependency-Injection-with-Dagger-2#code-generation) that is both easy to understand and trace, while also saving you from writing the large amount of boilerplate code you would normally need to write by hand to obtain references and pass them to other objects as dependencies. It also helps simplify refactoring, since you can focus on what modules to build rather than focusing on the order in which they need to be created.
+- **Easy configuration of complex dependencies**. There is an implicit order in which your objects are often created. Dagger 2 walks through the dependency graph and [generates code](https://github.com/codepath/android_guides/wiki/Dependency-Injection-with-Dagger-2#code-generation) that is both easy to understand and trace, while also saving you from writing the large amount of boilerplate code you would normally need to write by hand to obtain references and pass them to other objects as dependencies. 또한 리팩토링을 단순화하는 데 도움이 된다. 왜냐하면 모듈을 생성하는 순서 보다는 어떤 모듈을 만들어야 하느냐에 집중할 수 있기 때문이다.
 - **Easier unit and integration testing** Because the dependency graph is created for us, we can easily swap out modules that make network responses and mock out this behavior.
-- **Scoped instances** Not only can you easily manage instances that can last the entire application lifecycle, you can also leverage Dagger 2 to define instances with shorter lifetimes (i.e. bound to a user session, activity lifecycle, etc.).
+- **인스턴스의 범위(Scope)를 지정할 수 있다** Dagger 2를 활용하면 애플리케이션의 전체 생명주기 내내 지속되는 인스턴스를 쉽게 관리할 수 있을뿐만 아니라, 수명이 짧은 인스턴스를 정의할 수 있다(예를 들어 액티비티 생명주기나 사용자 세션).
 
 ### Setup
 
@@ -52,16 +54,16 @@ dependencies {
 
 Note that the `provided` keyword refers to dependencies that are only needed at compilation. The Dagger compiler generates code that is used to create the dependency graph of the classes defined in your source code. These classes are added to the IDE class path during compilation. The `annotationProcessor` keyword, which is understood by the Android Gradle plugin, does not add these classes to the class path, they are used only for annotation processing, which prevents accidentally referencing them.
 
-### Creating Singletons
+### 싱글턴 만들기
 
 ![Dagger Injections Overview](https://raw.githubusercontent.com/codepath/android_guides/master/images/dagger_general.png)
 
-The simplest example is to show how to centralize all your singleton creation with Dagger 2. Suppose you weren't using any type of dependency injection framework and wrote code in your Twitter client similar to the following:
+다음은 Dagger 2를 이용해 모든 싱글턴 생성을 중앙집중화 하는 간단한 예제다. 우선 아무런 의존성 주입 프레임워크를 쓰지 않고 트위터 클라이언트 코드를 다음과 같이 작성했다고 가정하자.
 
 ```java
 OkHttpClient client = new OkHttpClient();
 
-// Enable caching for OkHttp
+// OkHttp의 캐싱을 허용
 int cacheSize = 10 * 1024 * 1024; // 10 MiB
 Cache cache = new Cache(getApplication().getCacheDir(), cacheSize);
 client.setCache(cache);
@@ -85,7 +87,7 @@ Retrofit retrofit = new Retrofit.Builder()
 
 You need to define what objects should be included as part of the dependency chain by creating a Dagger 2 **module**. For instance, if we wish to make a single `Retrofit` instance tied to the application lifecycle and available to all our activities and fragments, we first need to make Dagger aware that a `Retrofit` instance can be provided.
 
-Because we wish to setup caching, we need an Application context. Our first Dagger module, `AppModule.java`, will be used to provide this reference. We will define a method annotated with `@Provides` that informs Dagger that this method is the constructor for the `Application` return type (i.e., it is the method in charge of providing the instance of the Application class):
+캐싱을 설정하려면 Application context가 필요하다. 우리가 만들 첫번째 Dagger 모듈인 `AppModule.java`는 이에 대한 참조를 제공하는데 쓰인다. We will define a method annotated with `@Provides` that informs Dagger that this method is the constructor for the `Application` return type (i.e., it is the method in charge of providing the instance of the Application class):
 
 ```java
 @Module
@@ -105,11 +107,11 @@ public class AppModule {
 }
 ```
 
-We create a class called `NetModule.java` and annotate it with `@Module` to signal to Dagger to search within the available methods for possible instance providers.
+We create a class called `NetModule.java` and annotate it with `@Module` to signal to Dagger to search within the available methods for possible instance providers. `NetModule.java`라는 클래스를 만들고 `@Module`이라는 어노테이션을 사용함으로써 Dagger로 하여금 적절한 인스턴스를 제공해줄 수 있는 메소드를 찾게 만든다.
 
 The methods that will actually expose available return types should also be annotated with the `@Provides` annotation. The `@Singleton` annotation also signals to the Dagger compiler that the instance should be created only once in the application. In the following example, we are specifying `SharedPreferences`, `Gson`, `Cache`, `OkHttpClient`, and `Retrofit` as the return types that can be used as part of the dependency list.
 
-```
+```java
 @Module
 public class NetModule {
 
@@ -165,15 +167,15 @@ public class NetModule {
 }
 ```
 
-Note that the method names (i.e. `provideGson()`, `provideRetrofit()`, etc) do not matter and can be named anything. The return type annotated with a `@Provides` annotation is used to associate this instantiation with any other modules of the same type. The `@Singleton` annotation is used to declare to Dagger to be only initialized only once during the entire lifecycle of the application.
+사실 메소드의 이름(`provideGson()`, `provideRetrofit()` 등등)은 중요하지 않으며 아무렇게나 지어도 된다. The return type annotated with a `@Provides` annotation is used to associate this instantiation with any other modules of the same type. `@Singleton` 어노테이션은 애플리케이션 전체 생명주기를 통틀어 단 한 번 초기화될 것이라는 것을 Dagger에게 선언하기 위해 사용한다.
 
-A `Retrofit` instance depends both on a `Gson` and `OkHttpClient` instance, so we can define another method within the same class that takes these two types. The `@Provides` annotation and these two parameters in the method will cause Dagger to recognize that there is a dependency on `Gson` and `OkHttpClient` to build a `Retrofit` instance.
+`Retrofit` 인스턴스는 `Gson` 인스턴스와 `OkHttpClient` 인스턴스를 모두 의존하고 있기 때문에, 같은 클래스에 이 두 타입을 취하는 또다른 메서드를 정의한다. 이 메서드는 `@Provides` 어노테이션과 2개의 매개 변수를 가지고 있기 때문에, Dagger는 `Retrofit` 인스턴스를 만들 때 `Gson`과 `OkHttpClient`에 의존해야 한다는 것을 알아차리게 된다.
 
 #### Define injection targets
 
-Dagger provides a way for the fields in your activities, fragments, or services to be assigned references simply by annotating the fields with an `@Inject` annotation and calling an `inject()`method. Calling `inject()` will cause Dagger 2 to locate the singletons in the dependency graph to try to find a matching return type. If it finds one, it assigns the references to the respective fields. For instance, in the example below, it will attempt to find a provider that returns `MyTwitterApiClient` and a `SharedPreferences` type:
+Dagger provides a way for the fields in your activities, fragments, or services to be assigned references simply by annotating the fields with an `@Inject` annotation and calling an `inject()`method. Calling `inject()` will cause Dagger 2 to locate the singletons in the dependency graph to try to find a matching return type. If it finds one, it assigns the references to the respective fields. 예를 들어, 아래의 예제에서 Dagger는 `MyTwitterApiClient` 타입과 `SharedPreferences` 타입을 반환하는 provider를 찾으려고 할 것이다.
 
-```
+```java
 public class MainActivity extends Activity {
    @Inject MyTwitterApiClient mTwitterApiClient;
    @Inject SharedPreferences sharedPreferences;
@@ -184,9 +186,9 @@ public class MainActivity extends Activity {
    } 
 ```
 
-The injector class used in Dagger 2 is called a **component**. It assigns references in our activities, services, or fragments to have access to singletons we earlier defined. We will need to annotate this class with a `@Component` annotation. Note that the activities, services, or fragments that are allowed to request the dependencies declared by the modules (by means of the `@Inject` annotation) should be declared in this class with individual `inject()` methods:
+Dagger 2에서 쓰이는 주입 클래스를 **컴포넌트(component)**라고 부른다. 컴포넌트는 액티비티, 서비스, 프래그먼트에 참조를 할당하여, 이들이 좀 전에 정의한 싱글턴에 접근할 수 있게 만들어 준다. 이제 `@Component` 어노테이션을 사용한 클래스가 필요해진다. Note that the activities, services, or fragments that are allowed to request the dependencies declared by the modules (by means of the `@Inject` annotation) should be declared in this class with individual `inject()` methods:
 
-```
+```java
 @Singleton
 @Component(modules={AppModule.class, NetModule.class})
 public interface NetComponent {
@@ -196,17 +198,19 @@ public interface NetComponent {
 }
 ```
 
-**Note** that base classes are not sufficient as injection targets. Dagger 2 relies on strongly typed classes, so you must specify explicitly which ones should be defined. (There are [suggestions](https://blog.gouline.net/2015/05/04/dagger-2-even-sharper-less-square/) to workaround the issue, but the code to do so may be more complicated to trace than simply defining them.)
+**Note** that base classes are not sufficient as injection targets.Dagger 2 relies on strongly typed classes, so you must specify explicitly which ones should be defined. (There are [suggestions](https://blog.gouline.net/2015/05/04/dagger-2-even-sharper-less-square/) to workaround the issue, but the code to do so may be more complicated to trace than simply defining them.)
 
-#### Code generation
+#### 코드 생성
 
 An important aspect of Dagger 2 is that the library generates code for classes annotated with the `@Component` interface. You can use a class prefixed with `Dagger` (i.e. `DaggerTwitterApiComponent.java`) that will be responsible for instantiating an instance of our dependency graph and using it to perform the injection work for fields annotated with `@Inject`. See the [setup guide](https://github.com/codepath/android_guides/wiki/Dependency-Injection-with-Dagger-2#setup).
 
-### Instantiating the component
+ `Dagger`라는 접두사가 붙은 클래스를  [설정 가이드](https://github.com/codepath/android_guides/wiki/Dependency-Injection-with-Dagger-2#setup)를 보자.
 
-We should do all this work within a specialization of the `Application` class since these instances should be declared only once throughout the entire lifespan of the application:
+### 컴포넌트 인스턴스화 하기
 
-```
+앞서 말한 작업들은 모두 `Application`을 상속한 클래스 내에서 이루어져야 한다. 왜냐하면 이러한 인스턴스들은 애플리케이션의 전체 생명주기를 통틀어 오직 한 번만 선언되어야 하기 때문이다.
+
+```java
 public class MyApp extends Application {
 
     private NetComponent mNetComponent;
@@ -233,19 +237,19 @@ public class MyApp extends Application {
 }
 ```
 
-Make sure to rebuild the project (in Android Studio, select *Build > Rebuild Project*) if you cannot reference the Dagger component.
+Dagger 컴포넌트를 참조할 수 없다면, 반드시 프로젝트를 리빌드 해야 한다(안드로이드 스튜디오에선, *Build > Rebuild Project* 선택).
 
 Because we are extending the default `Application` class with the class `MyApp`, we have to specify `MyApp` as the application `name` in the AndroidManifest.xml in order for it to be instantiated. This way your app will launch `MyApp` to handle the initial instantiation.
 
-```
+```xml
 <application
       android:allowBackup="true"
       android:name=".MyApp">
 ```
 
-Within our activity, we simply need to get access to these components and call `inject()`.
+이제 액티비티에서 컴포넌트에 접근해 `inject()`를 호출하기만 하면 된다.
 
-```
+```java
 public class MyActivity extends Activity {
   @Inject OkHttpClient mOkHttpClient;
   @Inject SharedPreferences sharedPreferences;
@@ -263,7 +267,9 @@ public class MyActivity extends Activity {
 
 If we need two different objects of the same return type, we can use the `@Named` qualifier annotation. You will define it both where you provide the singletons (`@Provides` annotation), and where you inject them (`@Inject` annotations):
 
-```
+반환형은 같지만 서로 다른 두 객체가 필요하다면, `@Named` 어노테이션을 사용하자. 싱글턴을 제공하는 곳, 두 곳에서 다 써야 한다.
+
+```java
 @Provides @Named("cached")
 @Singleton
 OkHttpClient provideOkHttpClient(Cache cache) {
@@ -288,7 +294,7 @@ Injection will also require these named annotations too:
 
 `@Named` is a qualifier that is pre-defined by dagger, but you can create your own qualifier annotations as well:
 
-```
+```java
 @Qualifier
 @Documented
 @Retention(RUNTIME)
