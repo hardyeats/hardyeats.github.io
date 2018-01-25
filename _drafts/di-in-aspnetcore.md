@@ -148,6 +148,30 @@ public interface IOperationSingletonInstance : IOperation { }
 
 `IOperationSingletonInstance` 는 항상 공백 Guid를 반환하는 특별한 형태이다.
 
-Now we can define the `Operation` class itself, which implements the four lifetime interfaces and defines the `GetCurrentID()` method.
+이제 `Operation` 클래스를 정의하자. 이 클래스는 4개의 생명주기 인터페이스를 구현하여 `GetCurrentID()`라는 메소드를 정의한다.
 
-이제 `Operation` 클래스를 정의하자. 이 클래스는 4개의 생명주기 
+```c#
+public class Operation : IOperationTransient, IOperationScoped, IOperationSingleton, IOperationSingletonInstance
+{
+    public Guid Guid { get; set; }
+
+    public Operation()
+    {
+        Guid = Guid.NewGuid();
+    }
+
+    public Operation(Guid guid)
+    {
+        Guid = guid;
+    }
+
+    public Guid GetCurrentID()
+    {
+        return Guid;
+    }
+}
+```
+
+이 `Operation` 클래스는 `Guid.NewGuid()`를 반환하거나, 생성자를 통해 전달된 Guid를 사용한다( `IOperationSingletonInstance`의 경우).
+
+However, to fully show how Transient operations work, we also need to define another class which represents a separate set of instances of these interfaces (separate from the ones being injected into our controller). We'll call this class `OperationServices` and it looks like this:
