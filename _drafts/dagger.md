@@ -16,7 +16,7 @@ Dagger 2는 이러한 의존성들을 분석해 서로를 연결해주는 코드
 
 ### 장점
 
-Dagger 2의 또 다른 장점들을 알아보자.
+Dagger 2의 또 다른 장점들을 살펴보자.
 
 - **공유 인스턴스에 대한 접근이 간편해진다**. [ButterKnife](https://github.com/codepath/android_guides/wiki/Reducing-View-Boilerplate-with-Butterknife)가 View 객체, 이벤트 핸들러, 리소스에 대한 참조를 정의하는 걸 손쉽게 만들어주듯이, Dagger 2는 공유 인스턴스에 대한 참조 획득을 간편하게 만들어준다. 예를 들어, 일단 Dagger에서 `MyTwitterApiClient`나  `SharedPreferences` 같은 싱글턴 인스턴스를 선언해두면,  다음과 같이 `@Inject` 어노테이션을 사용해 간편하게 필드를 선언할 수 있다.
 
@@ -169,9 +169,9 @@ public class NetModule {
 
 `Retrofit` 인스턴스는 `Gson` 인스턴스와 `OkHttpClient` 인스턴스를 모두 의존하고 있기 때문에, 같은 클래스에 이 두 타입을 취하는 또다른 메서드를 정의한다. 이 메서드는 `@Provides` 어노테이션과 2개의 매개 변수를 가지고 있기 때문에, Dagger는 `Retrofit` 인스턴스를 만들 때 `Gson`과 `OkHttpClient`에 의존해야 한다는 것을 알아차리게 된다.
 
-#### Define injection targets
+#### 주입 대상 정하기
 
-Dagger provides a way for the fields in your activities, fragments, or services to be assigned references simply by annotating the fields with an `@Inject` annotation and calling an `inject()`method. Calling `inject()` will cause Dagger 2 to locate the singletons in the dependency graph to try to find a matching return type. If it finds one, it assigns the references to the respective fields. 예를 들어, 아래의 예제에서 Dagger는 `MyTwitterApiClient` 타입과 `SharedPreferences` 타입을 반환하는 provider를 찾으려고 할 것이다.
+액티비티, 프래그먼트, 서비스 속의 필드에 참조를 할당하고 싶다면, 해당 필드에 `@Inject` 어노테이션을 쓰고 `inject()` 메소드를 호출하면 된다. `inject()`를 호출하면 Dagger 2는 의존성 그래프 안에 싱글턴을 배치하기 위해 일치하는 반환형을 찾기 시작한다.  만약 찾았다면, 그 참조는 해당 필드에 할당된다. 예를 들어, 아래의 예제에서 Dagger는 `MyTwitterApiClient` 타입과 `SharedPreferences` 타입을 반환하는 provider를 찾으려고 할 것이다.
 
 ```java
 public class MainActivity extends Activity {
@@ -179,12 +179,12 @@ public class MainActivity extends Activity {
    @Inject SharedPreferences sharedPreferences;
 
   public void onCreate(Bundle savedInstance) {
-       // assign singleton instances to fields
+       // 필드들에 싱글턴 인스턴스들을 할당
        InjectorClass.inject(this);
    } 
 ```
 
-Dagger 2에서 쓰이는 주입 클래스를 **컴포넌트(component)**라고 부른다. 컴포넌트는 액티비티, 서비스, 프래그먼트에 참조를 할당하여, 이들이 좀 전에 정의한 싱글턴에 접근할 수 있게 만들어 준다. 이제 `@Component` 어노테이션을 사용한 클래스가 필요해진다. Note that the activities, services, or fragments that are allowed to request the dependencies declared by the modules (by means of the `@Inject` annotation) should be declared in this class with individual `inject()` methods:
+Dagger 2에서 쓰이는 주입 클래스를 **컴포넌트(component)**라고 부른다. 컴포넌트는 액티비티, 서비스, 프래그먼트에 참조를 할당하여, 이들이 미리 정의한 싱글턴에 접근할 수 있게 만들어 준다. 이제 `@Component` 어노테이션을 사용한 클래스가 필요해진다. Note that the activities, services, or fragments that are allowed to request the dependencies declared by the modules (by means of the `@Inject` annotation) should be declared in this class with individual `inject()` methods:
 
 ```java
 @Singleton
@@ -196,7 +196,7 @@ public interface NetComponent {
 }
 ```
 
-**Note** that base classes are not sufficient as injection targets.Dagger 2 relies on strongly typed classes, so you must specify explicitly which ones should be defined. (There are [suggestions](https://blog.gouline.net/2015/05/04/dagger-2-even-sharper-less-square/) to workaround the issue, but the code to do so may be more complicated to trace than simply defining them.)
+베이스 클래스에는 주입이 불가능하다는 것을 알아두자! Dagger 2 relies on strongly typed classes, so you must specify explicitly which ones should be defined. (There are [suggestions](https://blog.gouline.net/2015/05/04/dagger-2-even-sharper-less-square/) to workaround the issue, but the code to do so may be more complicated to trace than simply defining them.)
 
 #### 코드 생성
 
