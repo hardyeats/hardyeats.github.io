@@ -4,9 +4,9 @@ title: 번역 - ASP.NET Core와 Akka.NET으로 장바구니 서비스 만들기
 tags: [aspnet-core, akka, actor]
 ---
 
-나는 최근 한 전자 상거래 업체에서 마이크로서비스 플랫폼을 구축하는 일을 하고 있다. 이 서비스는 Scala와 Akka라는 강력한 조합에 기반을 두고 있다. 특히 Akka는 웹 서비스의 속도, 확장성, 회복성에 대한 내 생각을 바꿔놓았다. Akka의 액터 모델 때문이다. 물론 거기선 Scala를 썼지만, 나는 요새 Microsoft가 .NET Core를 두고 보이는 행보에 굉장히 관심이 많다. 사실 내가 정말로 바라는 것은 .NET으로 완벽한 마이크로서비스를 만들고, 이를 Docker 컨테이너에 실어 배포하는 것이다.
+나는 요새 전자 상거래 업체에서 마이크로서비스 플랫폼을 구축하는 일을 하고 있다. 이 서비스는 Scala와 Akka라는 강력한 조합에 기반을 두고 있다. 특히 Akka는 웹 서비스의 속도, 확장성, 회복성에 대한 내 생각을 바꿔놓았다. Akka의 액터 모델 때문이다. 물론 거기선 Scala를 썼지만, 나는 요새 Microsoft가 .NET Core를 두고 보이는 행보에 굉장히 관심이 많다. 사실 내가 정말로 바라는 것은 .NET으로 완벽한 마이크로서비스를 만들고, 이를 Docker 컨테이너에 실어 배포하는 것이다.
 
-여기에선 ASP.NET Core 1.0.1과 [Akka.NET](http://getakka.net/)의 비공식 알파 릴리즈를 가지고 간단한 장바구니 서비스를 만들어 볼 것이다. `16년 10월 18일 현재 Akka.NET의 컨트리뷰터들은 .NET Core의 지원을 위해 열심히 노력하고 있다. 완벽 지원이 예고된 다음 릴리즈 버전은 1.5가 될 것 같은데, 내가 지금 사용하고 있는 버전도 굉장히 안정적이긴 하지만  쓸 수 있는 기능이 제한적이다. 예를 들어 .NET Core DI 지원은 아직이지만, 다음 릴리즈에는 완벽히 지원될 거라 예상하고 있다.
+이제 ASP.NET Core 1.0.1과 [Akka.NET](http://getakka.net/)의 비공식 알파 릴리즈를 가지고 간단한 장바구니 서비스를 만들어 볼 것이다. ~~`16년 10월 18일 현재 Akka.NET의 컨트리뷰터들은 .NET Core 지원을 위해 열심히 노력하고 있다. 완벽 지원이 예고된 다음 릴리즈 버전은 1.5가 될 것 같은데, 내가 지금 사용하고 있는 버전도 굉장히 안정적이긴 하지만  쓸 수 있는 기능이 제한적이다. 예를 들어 .NET Core DI 지원은 아직 미완성이지만, 다음 릴리즈에는 완벽히 지원될 거라 예상하고 있다.~~
 
 **덧붙임: .NET Core 2.0과 Akka.NET 1.3(.NET Core 정식 지원)이 릴리즈 됨에 따라 내 프로젝트도 수정했다.**
 
@@ -37,65 +37,63 @@ ASP.NET Core는 크로스 플랫폼이기 때문에, Windows에서만 돌아가�
 
 ![img](https://cdn-images-1.medium.com/max/800/1*cnmnfar--nhsHjFBG3bGhQ.jpeg)
 
-### Product domain
+### 상품(Product) 도메인
 
 After this set-up, I’ll first start with the ‘product’ domain. As a good micro-service manages it’s own data, it should also have a subset of the product catalog available so it isn’t dependent on other services for this. The subset only includes data needed for the basket-service to operate and enough data for an eventual UI application which is consuming this micro-service. In this example, the product catalog is hard-coded though :-).
 
-![img](https://cdn-images-1.medium.com/max/600/1*o9JW1Aybrxp-RnHQuJN9xg.jpeg)
+| ![img](https://cdn-images-1.medium.com/max/600/1*o9JW1Aybrxp-RnHQuJN9xg.jpeg) |
+| :--------------------------------------: |
+|  src/BasketService/Products/Product.cs   |
 
-src/BasketService/Products/Product.cs
+우선 상품 도메인 객체를 만들어야 한다. 보다시피 상품에 대한 기본 데이터만 포함되어 있다. 상세한 설명, 상품 유형, 상품 속성과 같은 정보는 서비스에 필요하지 않으므로 포함되어 있지 않다.
 
-First, the product domain object should be created. As you can see, it contains only some basic data about the product, but not information like a full description, product type or product properties as it is not needed for this service.
+이제 전체 상품 목록을 조회할 수 있는 API 끝점을 만들어야 한다.
 
-The product catalog will have an API endpoint to query the full catalog:
+| ![img](https://cdn-images-1.medium.com/max/800/1*Bp6qACDQJa1LJCX1a2AbmA.jpeg) |
+| :--------------------------------------: |
+| src/BasketService/Products/Routes/ProductApiController.cs |
 
-![img](https://cdn-images-1.medium.com/max/800/1*Bp6qACDQJa1LJCX1a2AbmA.jpeg)
+이 파일은 끝점에 대한 최소한의 코드만을 담고 있다. 코드 혼란을 최소화하기 위해, 모든 액션은 별도 클래스로 작성 후 여기에 주입할 것이다. `*GetAllProducts’*의 실제 구현은 다른 파일에서 이뤄진다.
 
-src/BasketService/Products/Routes/ProductApiController.cs
+| ![img](https://cdn-images-1.medium.com/max/800/1*G4sLdSFjp93NinMV3dEG6w.jpeg) |
+| :--------------------------------------: |
+| src/BasketService/Products/Routes/GetAllProducts.cs |
 
-The file only contains the minimal code to describe each endpoint. To keep code cluttering to a minimum, all actions will be separate classes which get injected here. The real implementation of ‘*GetAllProducts’ *will be done in an other file:
+여기서 액터를 처음으로 호출하게 된다. **ProductsActor**라는 이름의 액터는 ‘*GetAllProducts*’라는 메시지를 보낸 후 제품의 리스트를 받는 것을 기다린다. `async`와 `await`을 쓰면 이 호출은 완전히 비동기적이 된다. 액터가 결과를 기다리는 동안 앱이 다른 요청들을 처리할 수 있다는 말이다. 이 클래스는 로거 뿐만 아니라 한 프로바이더를 생성자를 통해 주입 받았다. 이 프로바이더는 **ProductsActor **를 생성한 후 `IActorRef` 참조를 반환할 것이다. The provider also sets the product catalog that this actor is being initialized with. 이제 *src/Products*에 ‘*Services.cs*’를 만들어 거기에서 DI 등록 작업을 한다. 이런 테크닉을 사용하면, DI 등록을 ‘*Startup.cs*’에서만 할 때보다 코드를 더 깔끔하게 정돈할 수 있다.
 
-![img](https://cdn-images-1.medium.com/max/800/1*G4sLdSFjp93NinMV3dEG6w.jpeg)
+| ![img](https://cdn-images-1.medium.com/max/800/1*oYP8H-MijB63Gs6SjGXxQw.jpeg) |
+| :--------------------------------------: |
+|  src/BasketService/Products/Services.cs  |
 
-src/BasketService/Products/Routes/GetAllProducts.cs
+보다시피 `IServiceCollection`의 확장 메서드이기 때문에 ‘*Startup.cs*’에  `services.AddProductServices()`라고 추가할 수 있다.
 
-Here you can see the first invocation to an actor called **ProductsActor**, where it sends the ‘*GetAllProducts*’ message and expects to receive a list of products. The usage of `async` and `await` makes this call fully asynchronous, so the application can handle other requests while waiting for the actor to return a result. This class gets the logger but also a provider injected into the constructor. The provider will create the **ProductsActor **and return a `IActorRef` reference. The provider also sets the product catalog that this actor is being initialized with. For now, to make all injections work I’ve created a file ‘*Services.cs*’ under *src/Products *and add registrations to the DI container there. With this, I keep it nicely organized without cluttering the ‘*Startup.cs*’ with all DI registrations.
+라우팅 설정이 끝났으니, 상품과 관련된 요청을 처리할 **ProductsActor**를 만들 차례다. **ProductsActor**는 Akka의 `ReceiveActor`를 상속하고 있으며, 생성자로부터 메모리에 있는 상품의 리스트를 받아 온다. 이 액터는 싱글턴이므로 애플리케이션의 전체 생명주기 내내 단 한 번 로드된다. 그리고 앞서 본 ‘*GetAllProducts*’와 같은 액터에게 보낼 수 있는 메시지들을 지원한다. 코드가 난잡해지는 것을 피하기 위해 이러한 메시지들을 정의하는 일은 **ProductsActor**와는 다른 파일에서 수행한다. 이 파일 역시 **ProductsActor** 클래스의 일부분이기 때문에 `partial class`로 만든다.
 
-![img](https://cdn-images-1.medium.com/max/800/1*oYP8H-MijB63Gs6SjGXxQw.jpeg)
+| ![img](https://cdn-images-1.medium.com/max/600/1*KhmOFAINv03T5pIcAao8Vg.png) |
+| :--------------------------------------: |
+| src/BasketService/Products/ProductsActor.Messages.cs |
 
-src/BasketService/Products/Services.cs
+보다시피 `GetAllProducts` 객체는 구현이 없다. 이 메시지에 대해서 다른 정보가 필요 없기 때문이다. 다른 메시지인 `UpdateStock`은 호출자가 원하는 작업이 무엇인지 규정하는 몇 가지 프로퍼티를 가지고 있다.
 
-As you can see, it is an extension method on `IServiceCollection`, so in ‘*Startup.cs*’ i can add this line: `services.AddProductServices()`
+| ![img](https://cdn-images-1.medium.com/max/600/1*FiarUSoli9R8RpHTHpsgcQ.png) |
+| :--------------------------------------: |
+| src/BasketService/Products/ProductsActor.Events.cs |
 
-Now that routing is in place, it’s time to create the **ProductsActor **to handle product related requests. The **ProductsActor **has the Akka `ReceiveActor` as it’s base class and in the constructor it receives the list of products which has to be held in memory. The actor would be a singleton, so it loaded only once during the whole lifetime of the application. The actor supports a set of messages which can be send to the actor such as the ‘*GetAllProducts*’ message as you’ve seen above. These message definitions are separated to a different file from the **ProductsActor **to prevent clutter. It is still part of the **ProductsActor **class though by marking it as `partial class`.
+호출자에게 반환될 이벤트들을 정의할 때도 비슷하다. 이 이벤트는 단순한 POCO 객체일 수도 있고, 액터가 수행하는 이벤트에 대한 추가 정보가 들어있는 경우도 있다. 이러한 이벤트들 역시 별도의 파일에서 정의된다.
 
-![img](https://cdn-images-1.medium.com/max/600/1*KhmOFAINv03T5pIcAao8Vg.png)
+모든 이벤트들이 `ProductEvent`를 상속하고 있는 것은, 단지 호출자가 무슨 종류의 이벤트인지 파악하기 쉽게 만들기 위함이다.
 
-src/BasketService/Products/ProductsActor.Messages.cs
-
-Here you can see that the `GetAllProducts` object doesn’t even has an implementation because no other data is needed for the message. The other message `UpdateStock` does have some properties to allow the caller to give some detailed information about the action he want’s to be performed.
-
-![img](https://cdn-images-1.medium.com/max/600/1*FiarUSoli9R8RpHTHpsgcQ.png)
-
-src/BasketService/Products/ProductsActor.Events.cs
-
-The same also applies to the events that are returned to the caller by the **ProductsActor**. These are also simple POCO objects, sometimes containing extra information about the event that is performed by the actor. These events are also defined in a separate file from the actual actor implementation.
-
-All events are inheriting from `ProductEvent` which only makes it easier for the caller to expect an event instead of a generic `object`.
-
-The **ProductsActor **is a fairly simple actor because it does not persists events or changes behaviour (i.e. state machine). The first message to process is the `GetAllProducts` message, which can be handled directly in the `Receive`method. It returns only the in-memory list of products. Note that it is an immutable copy of the list, but with references to each product in the original list. So it is not fully immutable, because in that case, I had to clone each object… If only C# has more support for immutable cloneable structures like ‘case classes’ in Scala. Maybe ‘record types’ could help us in the future: <https://github.com/dotnet/roslyn/blob/features/records/docs/features/records.md>.
+**ProductsActor**는 굉장히 단순한 액터라 볼 수 있다. 이벤트를 지속하거나 행동을 바꾸지 않기 때문이다. 첫 번째로 처리해야 할 메시지가 `GetAllProducts` 메시지인데, 곧바로 `Receive` 메소드로 처리할 수 있다. 이는 오로지 메모리에 있는 상품의 목록을 반환할 뿐이다. Note that it is an immutable copy of the list, but with references to each product in the original list. So it is not fully immutable, because in that case, I had to clone each object… Scala의 [케이스 클래스](https://docs.scala-lang.org/ko/tutorials/tour/case-classes.html.html)처럼, C#도 불변의 복제 가능한 구조체를 잘 지원해 줬으면 한다. 아마도 언젠가 [‘record types’](https://github.com/dotnet/roslyn/blob/features/records/docs/features/records.md)을 활용할 수도 있겠다.
 
 | ![img](https://cdn-images-1.medium.com/max/800/1*dN4o2GhzZ6mTq5ekALDo9A.png) |
 | :--------------------------------------: |
-| Implementation of **GetAllProducts **in **ProductsActor** |
+| **ProductsActor**에서 **GetAllProducts **구현 |
 
+두 번째 메시지는 좀 더 복잡하다. 비지니스 로직이 약간 들어가 있기 때문이다. Therefore the whole implementation is in a separate function:
 
-
-The second message is more complex, because there is some business logic involved here. Therefore the whole implementation is in a separate function:
-
-![img](https://cdn-images-1.medium.com/max/800/1*JEZk9h9Dh0V0Xtm1xoGfrw.png)
-
-**UpdateStock **message implementation in **ProductsActor**
+| ![img](https://cdn-images-1.medium.com/max/800/1*JEZk9h9Dh0V0Xtm1xoGfrw.png) |
+| :--------------------------------------: |
+| **ProductsActor**에서 **UpdateStock **메시지 구현 |
 
 Here you can see that it is returning the different event object instances (`StockUpdated`, `InsuffientStock` and `ProductNotFound`), based on the result. Using this, the caller can determine what happened and perform action on that (or not).
 
@@ -129,7 +127,7 @@ It will create the actor first if it does not exist in the actor system. So the 
 
 전체 구현이 담긴 [깃허브 레포지토리](https://github.com/pnieuwenhuis/aspnetcore_basketservice)를 꼭 방문해보기 바란다.
 
-Scala에서 본래 Akka를 다뤄본 사용자로서, Akka.NET의 기능성이 Akka와 비교해 거의 다를 바 없다는 사실이 굉장히 기쁘다. 포팅팀에게 찬사를 보낸다. 이 글은 Akka에 대해 그야말로 맛보기 수준에 그치고 있지만, 내 목표는 ASP.NET Core에서 실행되는 기능적 서비스를 만드는 일이다. ~~Akka.NET의 ASP.NET Core 지원 작업은 아직 진행 중이다.~~
+Scala에서 본래 Akka를 다뤄본 사용자로서, Akka.NET의 기능성이 Akka와 비교해 거의 다를 바 없다는 사실이 굉장히 기쁘다. 포팅 팀에게 찬사를 보낸다. 이 글은 Akka를 맛보기 수준으로 다루는데 그치고 있지만, 내 목표는 ASP.NET Core에서 실행되는 기능적 서비스를 만드는 일이다. ~~Akka.NET의 ASP.NET Core 지원 작업은 아직 진행 중이다.~~
 
 다음 단계는 Docker를 사용하여 이를 마이크로서비스 플랫폼에 배치하고 다른 마이크로서비스와 함께 이용하는 것이다. 이미 [다음](https://medium.com/trafi-tech-beat/running-net-core-on-docker-c438889eb5a)과 같은 예제를 쉽게 찾아볼 수 있다.
 
