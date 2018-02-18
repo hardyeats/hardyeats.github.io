@@ -10,7 +10,7 @@ tags: [aspnet-core, akka, actor]
 
 **덧붙임: .NET Core 2.0과 Akka.NET 1.3(.NET Core 정식 지원)이 릴리즈 됨에 따라 내 프로젝트도 수정했다.**
 
-여기선 장바구니 안을 확인하고, 그 속에 물건을 넣고 빼는 정도의 간단한 기능만 구현한다. It also has an internal sample product catalog, containing a few (future) gaming consoles :-). 모든 데이터는 인메모리에서 다룰 것이며, 따라서 앱이 꺼지면 모든 것이 날아간다.
+여기선 장바구니 안을 확인하고, 그 속에 물건을 넣고 빼는 정도의 간단한 기능만 구현한다. 모든 데이터는 인메모리에서 다룰 것이며, 따라서 앱이 꺼지면 모든 것이 날아간다.
 
 ASP.NET Core는 크로스 플랫폼이기 때문에, Windows에서만 돌아가는 개발도구를 고집할 이유가 없다. 대신 커맨드 라인 콘솔과 [Visual Studio Code](https://code.visualstudio.com)를 함께 사용할텐데, 굉장히 탁월한 조합이라 생각한다. C# 확장을 설치하는 걸 잊지 말자.
 
@@ -39,7 +39,7 @@ ASP.NET Core는 크로스 플랫폼이기 때문에, Windows에서만 돌아가�
 
 ### 상품(Product) 도메인
 
-After this set-up, I’ll first start with the ‘product’ domain. As a good micro-service manages it’s own data, it should also have a subset of the product catalog available so it isn’t dependent on other services for this. The subset only includes data needed for the basket-service to operate and enough data for an eventual UI application which is consuming this micro-service. In this example, the product catalog is hard-coded though :-).
+설정을 마쳤으니, 이제 '상품(product)' 도메인을 시작하자. 좋은 마이크로서비스라면 자신의 데이터를 직접 관리해야 하며, 이때문에 다른 서비스에 의존하지 않아야 한다. 장바구니 서비스가 사용할 상품 카탈로그의 하위 집합을 정의하자. 여기에는 장바구니 서비스가 돌아가는 데 필요한 데이터, 그리고 이 서비스를 소비하는 최종 UI 애플리케이션을 위한 데이터만 포함한다. 물론 이 예제에서는 하드 코딩된 상품 카탈로그를 사용한다. ^^; 
 
 | ![img](https://cdn-images-1.medium.com/max/600/1*o9JW1Aybrxp-RnHQuJN9xg.jpeg) |
 | :--------------------------------------: |
@@ -47,7 +47,7 @@ After this set-up, I’ll first start with the ‘product’ domain. As a good m
 
 우선 상품 도메인 객체를 만들어야 한다. 보다시피 상품에 대한 기본 데이터만 포함되어 있다. 상세한 설명, 상품 유형, 상품 속성과 같은 정보는 서비스에 필요하지 않으므로 포함되어 있지 않다.
 
-이제 전체 상품 목록을 조회할 수 있는 API 끝점을 만들어야 한다.
+이제 전체 상품 카탈로그를 조회할 수 있는 API 끝점을 만들어야 한다.
 
 | ![img](https://cdn-images-1.medium.com/max/800/1*Bp6qACDQJa1LJCX1a2AbmA.jpeg) |
 | :--------------------------------------: |
@@ -95,11 +95,11 @@ After this set-up, I’ll first start with the ‘product’ domain. As a good m
 | :--------------------------------------: |
 | **ProductsActor**에서 **UpdateStock **메시지 구현 |
 
-Here you can see that it is returning the different event object instances (`StockUpdated`, `InsuffientStock` and `ProductNotFound`), based on the result. Using this, the caller can determine what happened and perform action on that (or not).
+보다시피 결과에 따라 다른 이벤트 객체 인스턴스(`StockUpdated`, `InsuffientStock` and `ProductNotFound`)를 반환한다. 호출자는 이를 통해 무슨 일이 벌어졌는지 알 수 있고, 무슨 행동을 취해야 할지 혹은 아무 행동도 하지 않아야 할지를 결정할 수 있다.
 
-### Basket domain
+### 장바구니(Basket) 도메인
 
-The basket implementation has the same setup as the product domain. So domain objects, messages, events and API implementation are all there and implemented in the same manner. You should check GitHub for how this was implemented.
+The basket implementation has the same setup as the product domain. 따라서 도메인 객체, 메시지, 이벤트, API 구현은 모두 동일한 방식으로 하면 된다. 실제 구현 내용을 깃허브에서 확인해 보자.
 
 I’d like to zoom into the implementation of adding items to the basket, because the **BasketActor **teams up with the **ProductsActor **for retrieving the needed product information.
 
@@ -132,6 +132,8 @@ Scala에서 본래 Akka를 다뤄본 사용자로서, Akka.NET의 기능성이 A
 다음 단계는 Docker를 사용하여 이를 마이크로서비스 플랫폼에 배치하고 다른 마이크로서비스와 함께 이용하는 것이다. 이미 [다음](https://medium.com/trafi-tech-beat/running-net-core-on-docker-c438889eb5a)과 같은 예제를 쉽게 찾아볼 수 있다.
 
 이번 구현을 통해 나는 회복성이 높은 고성능의 서비스를 구축하고 이를 마이크로서비스 환경에 배포하는 것이 .NET 플랫폼에서 가능하다는 것을 확인했다.
+
+[원문](https://medium.com/@FurryMogwai/building-a-basket-micro-service-using-asp-net-core-and-akka-net-ea2a32ca59d5)
 
 [^역주1]: ASP.NET Core 2.0 기준으로 재작성된 코드임.
 [^역주2]: `18년 2월 현재 NuGet에서 검색 및 설치 가능함.
