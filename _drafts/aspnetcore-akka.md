@@ -87,7 +87,7 @@ ASP.NET Core는 크로스 플랫폼이기 때문에, Windows에서만 돌아가�
 
 | ![img](https://cdn-images-1.medium.com/max/800/1*dN4o2GhzZ6mTq5ekALDo9A.png) |
 | :--------------------------------------: |
-| **ProductsActor**에서 **GetAllProducts**구현 |
+| **ProductsActor**에서 **GetAllProducts** 구현 |
 
 두 번째 메시지는 좀 더 복잡하다. 비지니스 로직이 약간 들어가 있기 때문이다. 따라서 별도의 함수로 구현한다.
 
