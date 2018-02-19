@@ -1,6 +1,7 @@
 ---
 layout: post
 title: ASP.NET Core의 의존성 주입 기초
+comments: true
 tags: [aspnet-core, dependency-injection]
 ---
 
