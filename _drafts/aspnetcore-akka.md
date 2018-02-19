@@ -117,7 +117,7 @@ ASP.NET Core는 크로스 플랫폼이기 때문에, Windows에서만 돌아가�
 
 ![img](https://cdn-images-1.medium.com/max/600/1*riqg1hZVwLGgrtdLKjse3A.png)
 
-Another thing to note is that when creating a new basket item, the product data is copied over from the product object, instead of adding a reference to the product in the basket item. The reason of doing this, is to prevent mixing up models from different domains. Now I have a snapshot of the product at the time it was added, and it cannot be changed when the product data is changing.
+장바구니에 상품을 하나 집어 넣을 때, 단순히 그 상품에 대한 참조를 추가하는 것이 아니라 상품의 데이터를 복사하고 있다는 걸 유의하자. 다른 도메인의 모델과 뒤섞이는 걸 방지하기 위함이다. 이제 추가 시점의 스냅샷이 하나 생겼으며, 상품 데이터가 변경된다고 해서 뒤따라 바뀌지 않는다.
 
 그런데 만약 고객이 여러 명이 되면 어떡할까? API 계층에서 보내는 메시지를 전부 **BasketActor**로 보내면 직접 안 된다. 대신 **BasketsActor**라는 이름의 중계 액터를 만들어야 한다. 이 액터는 메시지로부터 고객 식별자를 읽은 다음에 적절한 **BasketActor**를 찾아 이 메시지를 전달한다.
 
