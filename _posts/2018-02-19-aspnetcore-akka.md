@@ -14,7 +14,7 @@ tags: [aspnet-core, akka, actor]
 
 ASP.NET Core는 크로스 플랫폼이기 때문에, Windows에서만 돌아가는 개발도구를 고집할 이유가 없다. 대신 커맨드 라인 콘솔과 [Visual Studio Code](https://code.visualstudio.com)를 함께 사용할텐데, 굉장히 탁월한 조합이라 생각한다. C# 확장을 설치하는 걸 잊지 말자.
 
->  이 솔루션의 최종 버전은 [여기](https://gitlab.com/pnieuwenhuis/newhouse-basket-service)[^역주1]에서 확인할 수 있다. 이 글에서는 각 파일에 대해 일일이 설명하지 않을 것이다.
+>  이 솔루션의 최종 버전은 [여기](https://gitlab.com/pnieuwenhuis/newhouse-basket-service)[^1]에서 확인할 수 있다. 이 글에서는 각 파일에 대해 일일이 설명하지 않을 것이다.
 
 
 ### 솔루션 설정
@@ -31,7 +31,7 @@ ASP.NET Core는 크로스 플랫폼이기 때문에, Windows에서만 돌아가�
 | :--------------------------------------: |
 |      src/BasketService/project.json      |
 
-~~Akka.NET의 버전이 1.2.0-alpha1이라는 데 주목하자. Akka.NET의 비공식 버전은 아직 공식 NuGet 저장소에 등록되지 않았다. 따라서 이 솔루션의 최상위 디렉토리에 `nuget.config`를 추가해야 Akka.NET을 찾을 수 있다.~~[^역주2] 또한, 콘솔 로깅 라이브러리로 [*Serilog*](https://serilog.net)를 사용할 것이다.
+~~Akka.NET의 버전이 1.2.0-alpha1이라는 데 주목하자. Akka.NET의 비공식 버전은 아직 공식 NuGet 저장소에 등록되지 않았다. 따라서 이 솔루션의 최상위 디렉토리에 `nuget.config`를 추가해야 Akka.NET을 찾을 수 있다.~~[^2] 또한, 콘솔 로깅 라이브러리로 [*Serilog*](https://serilog.net)를 사용할 것이다.
 
 ‘*Startup.cs*’  파일은 서비스 초기화를 담당한다. 여기서 로깅 및 DI 서비스를 초기화 할 것이며, Akka 액터 시스템도 마찬가지다. 액터 시스템은 싱글턴으로 ASP.NET Core 자체 DI 컨테이너에 추가될 것이다.
 
@@ -105,9 +105,9 @@ ASP.NET Core는 크로스 플랫폼이기 때문에, Windows에서만 돌아가�
 
 ![img](https://cdn-images-1.medium.com/max/800/1*m6smKbWlxOGwHn5Tqzb-ig.png)
 
-액터[^역주3]는 생성자를 통해 **ProductsActor**의 참조를 전달 받는다. 그리고 이를 통해  **ProductsActor**에게 우선 재고 수량을 갱신하라고 요청한다. 그리고  **ProductsActor**가 반환하는 결과에 따라 스스로 행동을 취한 뒤 또 한 번 자신의 결과를 반환한다. 여기서 장황한 If...else 구조를 썼는데, 패턴 매칭을 쓰는 게 더 현명할 것이다. 패턴 매팅은 C# 6에서 도입된다고 한다![^역주4] 그 전까진, 이 구조가  **ProductsActor**가 반환하는 결과를 지정하는 데 도움을 줄 것이다.
+액터[^3]는 생성자를 통해 **ProductsActor**의 참조를 전달 받는다. 그리고 이를 통해  **ProductsActor**에게 우선 재고 수량을 갱신하라고 요청한다. 그리고  **ProductsActor**가 반환하는 결과에 따라 스스로 행동을 취한 뒤 또 한 번 자신의 결과를 반환한다. 여기서 장황한 If...else 구조를 썼는데, 패턴 매칭을 쓰는 게 더 현명할 것이다. 패턴 매팅은 C# 6에서 도입된다고 한다![^4] 그 전까진, 이 구조가  **ProductsActor**가 반환하는 결과를 지정하는 데 도움을 줄 것이다.
 
-함수의 결과로 비동기 작업[^역주5]을 반환한다는 점을 눈여겨 보자. **ProductsActor**를 '물어 보는 일'이 비동기적이기 때문이다. 따라서 생성자 안의 Receive 메서드도 비동기적이어야 한다.
+함수의 결과로 비동기 작업[^5]을 반환한다는 점을 눈여겨 보자. **ProductsActor**를 '물어 보는 일'이 비동기적이기 때문이다. 따라서 생성자 안의 Receive 메서드도 비동기적이어야 한다.
 
 | ![img](https://cdn-images-1.medium.com/max/800/1*HpVaveWA-gnZ0zrMbbcvTg.png) |
 | :--------------------------------------: |
@@ -129,7 +129,7 @@ ASP.NET Core는 크로스 플랫폼이기 때문에, Windows에서만 돌아가�
 
 ### 마치며
 
-전체 구현이 담긴 [깃허브 레포지토리](https://github.com/pnieuwenhuis/aspnetcore_basketservice)[^역주6]를 꼭 방문해보기 바란다.
+전체 구현이 담긴 [깃허브 레포지토리](https://github.com/pnieuwenhuis/aspnetcore_basketservice)[^6]를 꼭 방문해보기 바란다.
 
 Scala에서 본래 Akka를 다뤄본 사용자로서, Akka.NET의 기능성이 Akka와 비교해 거의 다를 바 없다는 사실이 굉장히 기쁘다. 포팅 팀에게 찬사를 보낸다. 이 글은 Akka를 맛보기 수준으로 다루는데 그치고 있지만, 내 목표는 ASP.NET Core에서 실행되는 기능적 서비스를 만드는 일이다. ~~Akka.NET의 ASP.NET Core 지원 작업은 아직 진행 중이다.~~
 
@@ -141,9 +141,9 @@ Scala에서 본래 Akka를 다뤄본 사용자로서, Akka.NET의 기능성이 A
 
 [Building a basket micro-service using ASP.NET Core and Akka.NET](https://medium.com/@FurryMogwai/building-a-basket-micro-service-using-asp-net-core-and-akka-net-ea2a32ca59d5)
 
-[^역주1]: ASP.NET Core 2.0 기준으로 재작성된 코드임.
-[^역주2]: `18년 2월 현재 NuGet에서 검색 및 설치 가능함.
-[^역주3]: 장바구니 액터(BasketActor)를 가리킴.
-[^역주4]: ASP.NET Core 2.0부터는 C# 7.1을 지원함.
-[^역주5]: Task<T>
-[^역주6]: ASP.NET Core 1.0.x를 기준으로 작성된 코드임.
+[^1]: ASP.NET Core 2.0 기준으로 재작성된 코드임.
+[^2]: `18년 2월 현재 NuGet에서 검색 및 설치 가능함.
+[^3]: 장바구니 액터(BasketActor)를 가리킴.
+[^4]: ASP.NET Core 2.0부터는 C# 7.1을 지원함.
+[^5]: Task<T>
+[^6]: ASP.NET Core 1.0.x를 기준으로 작성된 코드임.
