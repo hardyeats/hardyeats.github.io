@@ -141,9 +141,9 @@ Scala에서 본래 Akka를 다뤄본 사용자로서, Akka.NET의 기능성이 A
 
 [Building a basket micro-service using ASP.NET Core and Akka.NET](https://medium.com/@FurryMogwai/building-a-basket-micro-service-using-asp-net-core-and-akka-net-ea2a32ca59d5)
 
-[^1]: ASP.NET Core 2.0 기준으로 재작성된 코드임.
-[^2]: `18년 2월 현재 NuGet에서 검색 및 설치 가능함.
-[^3]: 장바구니 액터(BasketActor)를 가리킴.
-[^4]: ASP.NET Core 2.0부터는 C# 7.1을 지원함.
-[^5]: Task<T>
-[^6]: ASP.NET Core 1.0.x를 기준으로 작성된 코드임.
+[^1]: (역주) ASP.NET Core 2.0 기준으로 재작성된 코드임.
+[^2]: (역주) `18년 2월 현재 NuGet에서 검색 및 설치 가능함.
+[^3]: (역주) 장바구니 액터(BasketActor)를 가리킴.
+[^4]: (역주) ASP.NET Core 2.0부터는 C# 7.1을 지원함.
+[^5]: (역주) Task<BaketEvent>
+[^6]: (역주) ASP.NET Core 1.0.x를 기준으로 작성된 코드임.
