@@ -1,5 +1,5 @@
 ---
- BasketActor. BasketActor.layout: post
+layout: post
 title: 번역 - ASP.NET Core와 Akka.NET으로 장바구니 서비스 만들기
 tags: [aspnet-core, akka, actor]
 ---
