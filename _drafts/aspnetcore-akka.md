@@ -1,5 +1,5 @@
 ---
-layout: post
+ BasketActor. BasketActor.layout: post
 title: 번역 - ASP.NET Core와 Akka.NET으로 장바구니 서비스 만들기
 tags: [aspnet-core, akka, actor]
 ---
@@ -23,9 +23,9 @@ ASP.NET Core는 크로스 플랫폼이기 때문에, Windows에서만 돌아가�
 | :--------------------------------------: |
 |                기본 솔루션 구조                 |
 
-우선 기본 디렉토리 구조에서 시작하자. 나는 `src/BasketService`에서 `dotnet new`라는 커맨드를 써서 애플리케이션을 만들었다. `global.json`라는 파일이 있는데, 여기서 솔루션 내 프로젝트들을 정의한다. 나중에 테스트 프로젝트를 붙일 때 다시 보게 될 것이다.
+우선 기본 디렉토리 구조를 보자. 나는 `src/BasketService`에서 `dotnet new`라는 커맨드를 써서 애플리케이션을 만들었다. `global.json`라는 파일이 있는데, 여기서 솔루션 내 프로젝트들을 정의한다. 나중에 테스트 프로젝트를 붙일 때 다시 보게 될 것이다.
 
-*src/BasketService* 안의 *project.json*라는 파일은 해당 디렉토리가 .NET Core 프로젝트라는 것을 나타내며, 다음과 같은 내용을 담고 있다.
+*src/BasketService* 안의 *project.json*라는 파일은 해당 디렉토리가 .NET Core 프로젝트라는 것을 알려주며, 다음과 같은 내용을 담고 있다.
 
 | ![img](https://cdn-images-1.medium.com/max/800/1*0ja2IH2mEEn5PxbuSwrwaQ.jpeg) |
 | :--------------------------------------: |
@@ -45,7 +45,7 @@ ASP.NET Core는 크로스 플랫폼이기 때문에, Windows에서만 돌아가�
 | :--------------------------------------: |
 |  src/BasketService/Products/Product.cs   |
 
-우선 상품 도메인 객체를 만들어야 한다. 보다시피 상품에 대한 기본 데이터만 포함되어 있다. 상세한 설명, 상품 유형, 상품 속성과 같은 정보는 서비스에 필요하지 않으므로 포함되어 있지 않다.
+우선 상품 도메인 객체를 만들어야 한다. 보다시피 상품에 대한 기본적인 데이터만 포함되어 있다. 상세한 설명, 상품 유형, 상품 속성과 같은 정보는 이 서비스에 필요하지 않으므로 포함되어 있지 않다.
 
 이제 전체 상품 카탈로그를 조회할 수 있는 API 끝점을 만들어야 한다.
 
@@ -53,19 +53,19 @@ ASP.NET Core는 크로스 플랫폼이기 때문에, Windows에서만 돌아가�
 | :--------------------------------------: |
 | src/BasketService/Products/Routes/ProductApiController.cs |
 
-이 파일은 끝점에 대한 최소한의 코드만을 담고 있다. 코드 혼란을 최소화하기 위해, 모든 액션은 별도 클래스로 작성 후 여기에 주입할 것이다. `*GetAllProducts’*의 실제 구현은 다른 파일에서 이뤄진다.
+이 파일은 끝점에 대한 최소한의 코드만을 담고 있다. 코드가 복잡해지는 걸 피하기 위해, 모든 액션은 별도 클래스로 작성 후 여기에 주입할 것이다. `*GetAllProducts’*의 실제 구현은 다른 파일에서 이뤄진다.
 
 | ![img](https://cdn-images-1.medium.com/max/800/1*G4sLdSFjp93NinMV3dEG6w.jpeg) |
 | :--------------------------------------: |
 | src/BasketService/Products/Routes/GetAllProducts.cs |
 
-여기서 액터를 처음으로 호출하게 된다. **ProductsActor**라는 이름의 액터는 ‘*GetAllProducts*’라는 메시지를 보낸 후 제품의 리스트를 받는 것을 기다린다. `async`와 `await`을 쓰면 이 호출은 완전히 비동기적이 된다. 액터가 결과를 기다리는 동안 앱이 다른 요청들을 처리할 수 있다는 말이다. 이 클래스는 로거 뿐만 아니라 한 프로바이더를 생성자를 통해 주입 받았다. 이 프로바이더는 **ProductsActor **를 생성한 후 `IActorRef` 참조를 반환할 것이다. The provider also sets the product catalog that this actor is being initialized with. 이제 *src/Products*에 ‘*Services.cs*’를 만들어 거기에서 DI 등록 작업을 한다. 이런 테크닉을 사용하면, DI 등록을 ‘*Startup.cs*’에서만 할 때보다 코드를 더 깔끔하게 정돈할 수 있다.
+여기서 액터를 처음으로 호출하게 된다. **ProductsActor**라는 이름의 액터는 ‘*GetAllProducts*’라는 메시지를 보낸 후 제품의 리스트를 받는 것을 기다린다. `async`와 `await`을 쓰면 이 호출은 완전히 비동기적이 된다. 액터가 결과를 기다리는 동안 앱이 다른 요청들을 처리할 수 있다는 말이다. 이 클래스는 로거 뿐만 아니라 한 프로바이더를 생성자를 통해 주입 받았다. 이 프로바이더는 상품 카탈로그와 **ProductsActor **를 생성한 후 `IActorRef` 참조를 반환할 것이다. 이제 *src/Products*에 ‘*Services.cs*’를 만들어 거기에서 DI 등록 작업을 한다. 이런 테크닉을 사용하면, DI 등록을 ‘*Startup.cs*’에서만 할 때보다 코드를 더 깔끔하게 정돈할 수 있다.
 
 | ![img](https://cdn-images-1.medium.com/max/800/1*oYP8H-MijB63Gs6SjGXxQw.jpeg) |
 | :--------------------------------------: |
 |  src/BasketService/Products/Services.cs  |
 
-보다시피 `IServiceCollection`의 확장 메서드이기 때문에 ‘*Startup.cs*’에  `services.AddProductServices()`라고 추가할 수 있다.
+보다시피 `IServiceCollection`의 확장 메서드이기 때문에 ‘*Startup.cs*’에서  `services.AddProductServices()`라고 추가할 수 있다.
 
 라우팅 설정이 끝났으니, 상품과 관련된 요청을 처리할 **ProductsActor**를 만들 차례다. **ProductsActor**는 Akka의 `ReceiveActor`를 상속하고 있으며, 생성자로부터 메모리에 있는 상품의 리스트를 받아 온다. 이 액터는 싱글턴이므로 애플리케이션의 전체 생명주기 내내 단 한 번 로드된다. 그리고 앞서 본 ‘*GetAllProducts*’와 같은 액터에게 보낼 수 있는 메시지들을 지원한다. 코드가 난잡해지는 것을 피하기 위해 이러한 메시지들을 정의하는 일은 **ProductsActor**와는 다른 파일에서 수행한다. 이 파일 역시 **ProductsActor** 클래스의 일부분이기 때문에 `partial class`로 만든다.
 
@@ -83,49 +83,53 @@ ASP.NET Core는 크로스 플랫폼이기 때문에, Windows에서만 돌아가�
 
 모든 이벤트들이 `ProductEvent`를 상속하고 있는 것은, 단지 호출자가 무슨 종류의 이벤트인지 파악하기 쉽게 만들기 위함이다.
 
-**ProductsActor**는 굉장히 단순한 액터라 볼 수 있다. 이벤트를 지속하거나 행동을 바꾸지 않기 때문이다. 첫 번째로 처리해야 할 메시지가 `GetAllProducts` 메시지인데, 곧바로 `Receive` 메소드로 처리할 수 있다. 이는 오로지 메모리에 있는 상품의 목록을 반환할 뿐이다. Note that it is an immutable copy of the list, but with references to each product in the original list. So it is not fully immutable, because in that case, I had to clone each object… Scala의 [케이스 클래스](https://docs.scala-lang.org/ko/tutorials/tour/case-classes.html.html)처럼, C#도 불변의 복제 가능한 구조체를 잘 지원해 줬으면 한다. 아마도 언젠가 [‘record types’](https://github.com/dotnet/roslyn/blob/features/records/docs/features/records.md)을 활용할 수도 있겠다.
+**ProductsActor**는 굉장히 단순한 액터라 볼 수 있다. 이벤트를 지속하거나 행동을 바꾸지 않기 때문이다. 첫 번째로 처리해야 할 메시지가 `GetAllProducts` 메시지인데, 곧바로 `Receive` 메소드로 처리할 수 있다. 이는 오로지 메모리에 있는 상품의 목록을 반환할 뿐이다. 그런데 이 목록은 원래의 목록을 참조하고 있는 것이므로, 완전히 불변이라 볼 수 없다. 그래서 일일이 복제를 해야 했는데… Scala의 [케이스 클래스](https://docs.scala-lang.org/ko/tutorials/tour/case-classes.html.html)처럼, C#도 불변의 복제 가능한 구조체를 잘 지원해 줬으면 한다. 아마도 언젠가 [‘record types’](https://github.com/dotnet/roslyn/blob/features/records/docs/features/records.md)을 활용할 수도 있겠다.
 
 | ![img](https://cdn-images-1.medium.com/max/800/1*dN4o2GhzZ6mTq5ekALDo9A.png) |
 | :--------------------------------------: |
 | **ProductsActor**에서 **GetAllProducts **구현 |
 
-두 번째 메시지는 좀 더 복잡하다. 비지니스 로직이 약간 들어가 있기 때문이다. Therefore the whole implementation is in a separate function:
+두 번째 메시지는 좀 더 복잡하다. 비지니스 로직이 약간 들어가 있기 때문이다. 따라서 별도의 함수로 구현한다.
 
 | ![img](https://cdn-images-1.medium.com/max/800/1*JEZk9h9Dh0V0Xtm1xoGfrw.png) |
 | :--------------------------------------: |
 | **ProductsActor**에서 **UpdateStock **메시지 구현 |
 
-보다시피 결과에 따라 다른 이벤트 객체 인스턴스(`StockUpdated`, `InsuffientStock` and `ProductNotFound`)를 반환한다. 호출자는 이를 통해 무슨 일이 벌어졌는지 알 수 있고, 무슨 행동을 취해야 할지 혹은 아무 행동도 하지 않아야 할지를 결정할 수 있다.
+보다시피 결과에 따라 다른 이벤트 객체 인스턴스(`StockUpdated`, `InsuffientStock`, `ProductNotFound`)를 반환한다. 호출자는 이를 통해 무슨 일이 벌어졌는지 알 수 있고, 무슨 행동을 취해야 할지 혹은 아무 행동도 하지 않아야 할지를 결정할 수 있다.
 
 ### 장바구니(Basket) 도메인
 
-The basket implementation has the same setup as the product domain. 따라서 도메인 객체, 메시지, 이벤트, API 구현은 모두 동일한 방식으로 하면 된다. 실제 구현 내용을 깃허브에서 확인해 보자.
+장바구니 도메인 역시 상품 도메인과 같은 설정을 따른다. 따라서 도메인 객체, 메시지, 이벤트, API 구현을 모두 동일한 방식으로 하면 된다. 실제 구현 내용은 깃허브에서 확인해 보자.
 
-I’d like to zoom into the implementation of adding items to the basket, because the **BasketActor **teams up with the **ProductsActor **for retrieving the needed product information.
+여기선 장바구니에 상품 추가하는 것을 어떻게 구현했는지만 살펴보자. 필요한 상품 정보를 찾기 위해 **BasketActor**가  **ProductsActor **와 협력하는 모습을 볼 수 있다.
 
 ![img](https://cdn-images-1.medium.com/max/800/1*m6smKbWlxOGwHn5Tqzb-ig.png)
 
-Here you can see it asks the **ProductsActor **to update the stock first, by using a reference to the **ProductsActor** which it received in the constructor of the actor. It then uses the result that is returned from the **ProductsActor **to do it’s own actions and return it’s own result. I’m using a large ‘if…else’ construct here, but pattern matching would be a better idea. Luckily, this feature will be introduced in C# 6! Until then, this contructs helps to determine the result that was returned from the **ProductsActor**.
+액터[^역주3]는 생성자를 통해 **ProductsActor**의 참조를 전달 받는다. 그리고 이를 통해  **ProductsActor**에게 우선 재고 수량을 갱신하라고 요청한다. 그리고  **ProductsActor**가 반환하는 결과에 따라 스스로 행동을 취한 뒤 또 한 번 자신의 결과를 반환한다. 여기서 장황한 If...else 구조를 썼는데, 패턴 매칭을 쓰는 게 더 현명할 것이다. 패턴 매팅은 C# 6에서 도입된다고 한다![^역주4] 그 전까진, 이 구조가  **ProductsActor**가 반환하는 결과를 지정하는 데 도움을 줄 것이다.
 
-Also noteworthy is that we are returning an asynchronous operation as function result, because ‘asking’ the **ProductsActor **is also asynchronous. Therefore, in the constructor the Receive method must also be asynchronous:
+함수의 결과로 비동기 작업[^역주5]을 반환한다는 점을 눈여겨 보자. **ProductsActor**를 '물어 보는 일'이 비동기적이기 때문이다. 따라서 생성자 안의 Receive 메서드도 비동기적이어야 한다.
 
-Using `ReceiveAsync` and the `PipeTo(Sender)` method makes sure that the asynchronous result is send directly to the sender of the message.
+| ![img](https://cdn-images-1.medium.com/max/800/1*HpVaveWA-gnZ0zrMbbcvTg.png) |
+| :--------------------------------------: |
+|          **BasketActor**의 생성자 내          |
+
+`ReceiveAsync`와 `PipeTo(Sender)` 메서드를 사용하면 비동기 결과가 메시지를 보낸 주체에게 직접 보내진다.
 
 ![img](https://cdn-images-1.medium.com/max/600/1*riqg1hZVwLGgrtdLKjse3A.png)
 
 Another thing to note is that when creating a new basket item, the product data is copied over from the product object, instead of adding a reference to the product in the basket item. The reason of doing this, is to prevent mixing up models from different domains. Now I have a snapshot of the product at the time it was added, and it cannot be changed when the product data is changing.
 
-OK, so we have one basket actor with an in-memory list of it’s items, but what if there are multiple customers (which is hopefully the case on a e-commerce site)? To solve this, not all messages from the API layer are directly send to the **BasketActor**, but an intermediate actor called **BasketsActor**. This actor reads the customer identifier from the message that is sent and then forwards the message to the correct **BasketActor**.
+그런데 만약 고객이 여러 명이 되면 어떡할까? API 계층에서 보내는 메시지를 전부 **BasketActor**로 보내면 직접 안 된다. 대신 **BasketsActor**라는 이름의 중계 액터를 만들어야 한다. 이 액터는 메시지로부터 고객 식별자를 읽은 다음에 적절한 **BasketActor**를 찾아 이 메시지를 전달한다.
 
 | ![img](https://cdn-images-1.medium.com/max/800/1*O9ta5S4Hb_esEtENjdUm-g.png) |
 | :--------------------------------------: |
-| Implementation of the message forwarder of the BasketsActor |
+|       **BasketsActor**의 메시지 전달자 구현       |
 
-It will create the actor first if it does not exist in the actor system. So the **BasketsActor **has a collection of child actors, where each actor is a basket of a customer. The child actor is identified using the customer identifier, so for example the identification of a basket of customer 12 in the actor system is: `/user/baskets/12`.
+액터 시스템 내에 액터가 없으면 액터를 먼저 생성한다. 따라서 **BasketsActor**는 자식 액터들의 컬렉션이라 볼 수 있으며, 각각의 액터는 고객이다. 자식 액터는 고객 식별자를 통해 구별한다. 예를 들어 12번 고객의 장바구니는 `/user/baskets/12`로 찾아갈 수 있다.
 
 ### 마치며
 
-전체 구현이 담긴 [깃허브 레포지토리](https://github.com/pnieuwenhuis/aspnetcore_basketservice)를 꼭 방문해보기 바란다.
+전체 구현이 담긴 [깃허브 레포지토리](https://github.com/pnieuwenhuis/aspnetcore_basketservice)[^역주6]를 꼭 방문해보기 바란다.
 
 Scala에서 본래 Akka를 다뤄본 사용자로서, Akka.NET의 기능성이 Akka와 비교해 거의 다를 바 없다는 사실이 굉장히 기쁘다. 포팅 팀에게 찬사를 보낸다. 이 글은 Akka를 맛보기 수준으로 다루는데 그치고 있지만, 내 목표는 ASP.NET Core에서 실행되는 기능적 서비스를 만드는 일이다. ~~Akka.NET의 ASP.NET Core 지원 작업은 아직 진행 중이다.~~
 
@@ -133,7 +137,13 @@ Scala에서 본래 Akka를 다뤄본 사용자로서, Akka.NET의 기능성이 A
 
 이번 구현을 통해 나는 회복성이 높은 고성능의 서비스를 구축하고 이를 마이크로서비스 환경에 배포하는 것이 .NET 플랫폼에서 가능하다는 것을 확인했다.
 
-[원문](https://medium.com/@FurryMogwai/building-a-basket-micro-service-using-asp-net-core-and-akka-net-ea2a32ca59d5)
+##참조
+
+[Building a basket micro-service using ASP.NET Core and Akka.NET](https://medium.com/@FurryMogwai/building-a-basket-micro-service-using-asp-net-core-and-akka-net-ea2a32ca59d5)
 
 [^역주1]: ASP.NET Core 2.0 기준으로 재작성된 코드임.
 [^역주2]: `18년 2월 현재 NuGet에서 검색 및 설치 가능함.
+[^역주3]: 장바구니 액터(BasketActor)를 가리킴.
+[^역주4]: ASP.NET Core 2.0부터는 C# 7.1을 지원함.
+[^역주5]: Task<T>
+[^역주6]: ASP.NET Core 1.0.x를 기준으로 작성된 코드임.
