@@ -137,7 +137,7 @@ Scala에서 본래 Akka를 다뤄본 사용자로서, Akka.NET의 기능성이 A
 
 이번 구현을 통해 나는 회복성이 높은 고성능의 서비스를 구축하고 이를 마이크로서비스 환경에 배포하는 것이 .NET 플랫폼에서 가능하다는 것을 확인했다.
 
-##참조
+### 참조
 
 [Building a basket micro-service using ASP.NET Core and Akka.NET](https://medium.com/@FurryMogwai/building-a-basket-micro-service-using-asp-net-core-and-akka-net-ea2a32ca59d5)
 
