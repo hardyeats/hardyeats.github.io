@@ -59,7 +59,7 @@ ASP.NET Core는 크로스 플랫폼이기 때문에, Windows에서만 돌아가�
 | :--------------------------------------: |
 | src/BasketService/Products/Routes/GetAllProducts.cs |
 
-여기서 액터를 처음으로 호출하게 된다. **ProductsActor**라는 이름의 액터는 ‘*GetAllProducts*’라는 메시지를 보낸 후 제품의 리스트를 받는 것을 기다린다. `async`와 `await`을 쓰면 이 호출은 완전히 비동기적이 된다. 액터가 결과를 기다리는 동안 앱이 다른 요청들을 처리할 수 있다는 말이다. 이 클래스는 로거 뿐만 아니라 한 프로바이더를 생성자를 통해 주입 받았다. 이 프로바이더는 상품 카탈로그와 **ProductsActor **를 생성한 후 `IActorRef` 참조를 반환할 것이다. 이제 *src/Products*에 ‘*Services.cs*’를 만들어 거기에서 DI 등록 작업을 한다. 이런 테크닉을 사용하면, DI 등록을 ‘*Startup.cs*’에서만 할 때보다 코드를 더 깔끔하게 정돈할 수 있다.
+여기서 액터를 처음으로 호출하게 된다. **ProductsActor**라는 이름의 액터는 ‘*GetAllProducts*’라는 메시지를 보낸 후 제품의 리스트를 받는 것을 기다린다. `async`와 `await`을 쓰면 이 호출은 완전히 비동기적이 된다. 액터가 결과를 기다리는 동안 앱이 다른 요청들을 처리할 수 있다는 말이다. 이 클래스는 로거 뿐만 아니라 한 프로바이더를 생성자를 통해 주입 받았다. 이 프로바이더는 상품 카탈로그와 **ProductsActor**를 생성한 후 `IActorRef` 참조를 반환할 것이다. 이제 *src/Products*에 ‘*Services.cs*’를 만들어 거기에서 DI 등록 작업을 한다. 이런 테크닉을 사용하면, DI 등록을 ‘*Startup.cs*’에서만 할 때보다 코드를 더 깔끔하게 정돈할 수 있다.
 
 | ![img](https://cdn-images-1.medium.com/max/800/1*oYP8H-MijB63Gs6SjGXxQw.jpeg) |
 | :--------------------------------------: |
@@ -105,7 +105,7 @@ ASP.NET Core는 크로스 플랫폼이기 때문에, Windows에서만 돌아가�
 
 ![img](https://cdn-images-1.medium.com/max/800/1*m6smKbWlxOGwHn5Tqzb-ig.png)
 
-액터[^3]는 생성자를 통해 **ProductsActor**의 참조를 전달 받는다. 그리고 이를 통해  **ProductsActor**에게 우선 재고 수량을 갱신하라고 요청한다. 그리고  **ProductsActor**가 반환하는 결과에 따라 스스로 행동을 취한 뒤 또 한 번 자신의 결과를 반환한다. 여기서 장황한 If...else 구조를 썼는데, 패턴 매칭을 쓰는 게 더 현명할 것이다. 패턴 매팅은 C# 6에서 도입된다고 한다![^4] 그 전까진, 이 구조가  **ProductsActor**가 반환하는 결과를 지정하는 데 도움을 줄 것이다.
+액터[^3]는 생성자를 통해 **ProductsActor**의 참조를 전달 받는다. 그리고 이를 통해  **ProductsActor**에게 우선 재고 수량을 갱신하라고 요청한다. 그리고  **ProductsActor**가 반환하는 결과에 따라 스스로 행동을 취한 뒤 또 한 번 자신의 결과를 반환한다. 여기서 장황한 If...else 구조를 썼는데, 패턴 매칭을 쓰는 게 더 현명할 것이다. 패턴 매칭은 C# 6에서 도입된다고 한다![^4] 그 전까진, 이 구조가  **ProductsActor**가 반환하는 결과를 지정하는 데 도움을 줄 것이다.
 
 함수의 결과로 비동기 작업[^5]을 반환한다는 점을 눈여겨 보자. **ProductsActor**를 '물어 보는 일'이 비동기적이기 때문이다. 따라서 생성자 안의 Receive 메서드도 비동기적이어야 한다.
 
