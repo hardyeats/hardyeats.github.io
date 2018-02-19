@@ -2,7 +2,7 @@
 layout: post
 title: ASP.NET Core의 의존성 주입 기초
 comments: true
-tags: [aspnet-core, dependency-injection]
+tags: [aspnetcore, dependency-injection]
 ---
 
 아래는 미리 허락을 받고 [Matthew Jones](https://exceptionnotfound.net/author/matthew-jones/)의 글([Getting Started with Dependency Injection in ASP.NET Core](https://exceptionnotfound.net/getting-started-with-dependency-injection-in-asp-net-core/))을  번역한 것입니다.

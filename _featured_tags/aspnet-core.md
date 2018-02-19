@@ -1,7 +1,7 @@
 ---
 layout: list
-title: aspnet-core
-slug: aspnet-core
+title: ASP.NET Core
+slug: aspnetcore
 menu: true
 order: 1
 description: >
