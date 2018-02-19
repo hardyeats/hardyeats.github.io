@@ -1,6 +1,6 @@
 ---
 layout: list
-title: ASP.NET CORE
+title: aspnet-core
 slug: aspnet-core
 menu: true
 order: 1
