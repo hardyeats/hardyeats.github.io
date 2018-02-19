@@ -8,7 +8,7 @@ title:  "Dagger 2를 이용한 의존성 주입"
 
 ## 개요
 
-대부분의 안드로이드 앱들은 다른 의존성을 필요로 하는 객체를 인스턴스화 한다. 예를 들어, 트위터 API 클라이언트를 만들 때 [Retrofit](https://github.com/codepath/android_guides/wiki/Consuming-APIs-with-Retrofit) 같은 네트워킹 라이브러리를 활용할 수 있다. 이 라이브러리를 사용하려면, [Gson](https://github.com/codepath/android_guides/wiki/Leveraging-the-Gson-Library) 같은 파싱 라이브러리를 추가해야 할지도 모른다.또한, 인증이나 캐싱을 구현하는 클래스들은 [shared preferences](https://github.com/codepath/android_guides/wiki/Storing-and-Accessing-SharedPreferences) 같은 공용 저장소에 접근하는 게 필요할 수 있으므로, 우선 이들을 인스턴스화 한 뒤 내재된 의존성 체인을 만들어야 한다.
+대부분의 안드로이드 앱들은 다른 의존성을 필요로 하는 객체를 인스턴스화 한다. 예를 들어, 트위터 API 클라이언트를 만들 때 [Retrofit](https://github.com/codepath/android_guides/wiki/Consuming-APIs-with-Retrofit) 같은 네트워킹 라이브러리를 활용할 수 있다. 이 라이브러리를 사용하려면, [Gson](https://github.com/codepath/android_guides/wiki/Leveraging-the-Gson-Library) 같은 파싱 라이브러리를 추가해야 할지도 모른다. 또한, 인증이나 캐싱을 구현하는 클래스들은 [shared preferences](https://github.com/codepath/android_guides/wiki/Storing-and-Accessing-SharedPreferences) 같은 공용 저장소에 접근하는 게 필요할 수 있으므로, 우선 이들을 인스턴스화 한 뒤 내재된 의존성 체인을 만들어야 한다.
 
 의존성 주입(Dependency Injection)에 익숙하지 않다면, [이 영상](https://www.youtube.com/watch?v=IKD2-MAkXyQ)을 보고 오자.
 
